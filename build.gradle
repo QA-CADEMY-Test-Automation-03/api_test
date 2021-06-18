@@ -9,10 +9,37 @@ repositories {
     mavenCentral()
 }
 
+//https://cucumber.io/docs/tools/java/
+configurations {
+    cucumberRuntime {
+        extendsFrom testImplementation
+    }
+}
+
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
-    testImplementation 'io.rest-assured:rest-assured:4.3.3'
+    implementation 'io.rest-assured:rest-assured:4.3.3'
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.3'
+
+    testImplementation 'io.cucumber:cucumber-java:6.10.4'
+    testImplementation 'io.cucumber:cucumber-junit:6.10.4'
+    implementation group: 'io.cucumber', name: 'cucumber-picocontainer', version: '6.10.4'
+
+
+}
+
+
+task cucumber() {
+    dependsOn assemble, testClasses
+    doLast {
+        javaexec {
+            main = "io.cucumber.core.cli.Main"
+            classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+            args = ['--plugin', 'pretty', '--glue', 'test.api', 'src/test/resources/features']
+        }
+    }
 }
 
 test {
